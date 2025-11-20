@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard · Informe de Gestión 2025 · Uniagustiniana</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Markmap toolbar CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markmap-toolbar@0.18.12/dist/style.css">
+
+  <style>
+    :root{
+      /* Paleta Uniagustiniana: azul oscuro + dorado */
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --primary:#002b5c;        /* azul oscuro institucional */
+      --primary-soft:#e1e6f2;
+      --accent:#d4a322;         /* amarillo dorado */
+      --accent-soft:#f9f1d6;
+      --danger:#dc3545;
+      --success:#198754;
+      --muted:#6c757d;
+    }
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    }
+    .dashboard-shell{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+    .dash-header{
+      background:linear-gradient(135deg,var(--primary) 0%,#063f7a 35%,var(--accent) 100%);
+      color:#fff;
+      padding:1.5rem 1.5rem 1rem;
+    }
+    .dash-header h1{
+      font-size:1.6rem;
+      margin:0;
+      font-weight:600;
+    }
+    .dash-header small{
+      opacity:.9;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:.4rem;
+      border-radius:999px;
+      padding:.35rem .8rem;
+      background-color:rgba(255,255,255,.12);
+      font-size:.8rem;
+      margin-right:.35rem;
+      margin-bottom:.35rem;
+      backdrop-filter:blur(6px);
+    }
+    .uni-logo{
+      height:56px;
+      width:auto;
+      border-radius:.75rem;
+      background-color:rgba(255,255,255,.12);
+      padding:.4rem .6rem;
+      box-shadow:0 4px 12px rgba(0,0,0,.25);
+    }
+    .main-content{
+      flex:1;
+      padding:1rem 1.5rem 1.5rem;
+    }
+
+    /* Panel resumen general */
+    .summary-panel{
+      background:var(--card);
+      border-radius:1rem;
+      padding:1rem 1.1rem 1.1rem;
+      box-shadow:0 8px 22px rgba(15,23,42,.08);
+      border:1px solid rgba(15,23,42,.05);
+      margin-bottom:1.2rem;
+      position:relative;
+      overflow:hidden;
+    }
+    .summary-panel::before{
+      content:"";
+      position:absolute;
+      inset:-40% auto auto -40%;
+      width:60%;
+      height:60%;
+      background:radial-gradient(circle at 0 0,rgba(0,43,92,.14),transparent 60%);
+      pointer-events:none;
+    }
+    .summary-header{
+      position:relative;
+      z-index:1;
+      display:flex;
+      justify-content:space-between;
+      gap:1rem;
+      align-items:flex-start;
+      margin-bottom:.8rem;
+    }
+    .summary-header h2{
+      margin:0;
+      font-size:1.1rem;
+      font-weight:600;
+      color:var(--primary);
+    }
+    .summary-header small{
+      font-size:.8rem;
+      color:var(--muted);
+      display:block;
+      margin-top:.2rem;
+    }
+    .summary-badge{
+      border-radius:999px;
+      padding:.25rem .7rem;
+      background:var(--accent-soft);
+      color:var(--primary);
+      font-size:.75rem;
+      display:inline-flex;
+      align-items:center;
+      gap:.35rem;
+      font-weight:500;
+      border:1px solid rgba(212,163,34,.4);
+    }
+    .summary-kpis{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:.7rem;
+      margin-bottom:.7rem;
+    }
+    .summary-kpi-card{
+      border-radius:.85rem;
+      padding:.55rem .7rem;
+      background:#f8f9fa;
+      border:1px solid rgba(15,23,42,.04);
+      display:flex;
+      flex-direction:column;
+      gap:.15rem;
+    }
+    .summary-kpi-label{
+      font-size:.75rem;
+      color:var(--muted);
+    }
+    .summary-kpi-value{
+      font-size:1rem;
+      font-weight:600;
+      color:var(--primary);
+    }
+    .summary-kpi-note{
+      font-size:.73rem;
+      color:var(--muted);
+    }
+    .summary-actions{
+      position:relative;
+      z-index:1;
+      display:flex;
+      flex-wrap:wrap;
+      gap:.6rem;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:.4rem;
+    }
+    .summary-actions small{
+      font-size:.75rem;
+      color:var(--muted);
+    }
+    .summary-collapse{
+      position:relative;
+      z-index:1;
+      margin-top:.7rem;
+      max-height:260px;
+      overflow:auto;
+      padding-right:.3rem;
+    }
+    .summary-text p{
+      font-size:.8rem;
+      color:#343a40;
+      line-height:1.45;
+      margin-bottom:.45rem;
+      text-align:justify;
+    }
+
+    /* Layout principal */
+    @media (min-width:992px){
+      .main-content-inner{
+        display:grid;
+        grid-template-columns: minmax(0,1.4fr) minmax(0,1fr);
+        gap:1.25rem;
+        align-items:start;
+      }
+    }
+    @media (max-width:991.98px){
+      .main-content-inner{
+        display:flex;
+        flex-direction:column;
+        gap:1.25rem;
+      }
+    }
+
+    /* Tarjetas de programas */
+    .programs-panel{
+      background:var(--card);
+      border-radius:1rem;
+      padding:1rem;
+      box-shadow:0 6px 16px rgba(15,23,42,.08);
+      border:1px solid rgba(15,23,42,.05);
+    }
+    .programs-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:.8rem;
+    }
+    .programs-header h2{
+      font-size:1.1rem;
+      margin:0;
+      font-weight:600;
+      color:var(--primary);
+    }
+    .programs-header small{
+      color:var(--muted);
+    }
+    .program-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+      gap:.8rem;
+    }
+    .program-card{
+      position:relative;
+      background:#fff;
+      border-radius:.9rem;
+      padding:.8rem .9rem;
+      border:1px solid rgba(15,23,42,.06);
+      box-shadow:0 3px 10px rgba(15,23,42,.04);
+      cursor:pointer;
+      transition:all .18s ease;
+    }
+    .program-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 20px rgba(15,23,42,.12);
+      border-color:var(--primary-soft);
+    }
+    .program-card.active{
+      border-color:var(--primary);
+      box-shadow:0 0 0 1px rgba(0,43,92,.6);
+    }
+    .program-title{
+      font-size:.95rem;
+      font-weight:600;
+      margin-bottom:.1rem;
+      display:flex;
+      align-items:center;
+      gap:.4rem;
+      color:var(--primary);
+    }
+    .program-chip{
+      display:inline-flex;
+      align-items:center;
+      padding:.1rem .45rem;
+      border-radius:999px;
+      font-size:.7rem;
+      background:var(--primary-soft);
+      color:var(--primary);
+      font-weight:500;
+    }
+    .program-subtitle{
+      font-size:.8rem;
+      color:var(--muted);
+      margin-bottom:.4rem;
+    }
+    .kpi-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.35rem;
+      align-items:center;
+    }
+    .kpi-pill{
+      flex:1;
+      min-width:90px;
+      border-radius:.7rem;
+      padding:.15rem .4rem;
+      background:#f8f9fa;
+      display:flex;
+      flex-direction:column;
+    }
+    .kpi-pill span.label{
+      font-size:.65rem;
+      color:var(--muted);
+    }
+    .kpi-pill span.value{
+      font-size:.8rem;
+      font-weight:600;
+      color:var(--primary);
+    }
+    .kpi-pill .badge-dot{
+      width:.4rem;
+      height:.4rem;
+      border-radius:50%;
+      margin-right:.25rem;
+    }
+    .badge-dot.success{background-color:var(--success);}
+    .badge-dot.warning{background-color:#ffc107;}
+    .badge-dot.danger{background-color:var(--danger);}
+
+    /* Mini gráfico dentro de cada tarjeta */
+    .mini-kpi-chart{
+      margin-top:.45rem;
+    }
+    .mini-kpi-label{
+      display:flex;
+      justify-content:space-between;
+      font-size:.7rem;
+      color:var(--muted);
+    }
+    .mini-kpi-bar{
+      margin-top:.18rem;
+      height:6px;
+      border-radius:999px;
+      background:#eef1f7;
+      overflow:hidden;
+    }
+    .mini-kpi-fill{
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--primary),var(--accent));
+      width:var(--value,0%);
+    }
+
+    /* Panel de detalle */
+    .detail-panel{
+      background:var(--card);
+      border-radius:1rem;
+      padding:1.1rem 1.1rem 1.3rem;
+      box-shadow:0 8px 24px rgba(15,23,42,.08);
+      border:1px solid rgba(15,23,42,.05);
+      position:relative;
+      overflow:hidden;
+    }
+    .detail-panel::before{
+      content:"";
+      position:absolute;
+      inset:auto -40% -40% auto;
+      width:60%;
+      height:60%;
+      background:radial-gradient(circle at 100% 100%,rgba(0,43,92,.17),transparent 60%);
+      pointer-events:none;
+    }
+    .detail-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:.5rem;
+      margin-bottom:.6rem;
+      position:relative;
+      z-index:1;
+    }
+    .detail-title{
+      margin:0;
+      font-size:1.1rem;
+      font-weight:600;
+      color:var(--primary);
+    }
+    .detail-tag{
+      display:inline-flex;
+      align-items:center;
+      gap:.35rem;
+      padding:.2rem .6rem;
+      border-radius:999px;
+      background:var(--accent-soft);
+      color:var(--primary);
+      font-size:.75rem;
+      font-weight:500;
+      border:1px solid rgba(212,163,34,.4);
+    }
+    .detail-meta{
+      font-size:.75rem;
+      color:var(--muted);
+    }
+    .detail-body{
+      position:relative;
+      z-index:1;
+    }
+    .detail-kpis{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+      gap:.6rem;
+      margin-bottom:.8rem;
+    }
+    .detail-kpi-card{
+      border-radius:.8rem;
+      padding:.55rem .7rem;
+      background:#f8f9fa;
+      border:1px solid rgba(15,23,42,.04);
+    }
+    .detail-kpi-label{
+      font-size:.7rem;
+      color:var(--muted);
+      margin-bottom:.1rem;
+    }
+    .detail-kpi-value{
+      font-size:1rem;
+      font-weight:600;
+      color:var(--primary);
+    }
+    .detail-kpi-note{
+      font-size:.7rem;
+      color:var(--muted);
+    }
+    .detail-summary-title{
+      font-size:.85rem;
+      font-weight:600;
+      margin-bottom:.2rem;
+      color:var(--primary);
+    }
+    .detail-summary-text{
+      font-size:.8rem;
+      color:#343a40;
+      line-height:1.4;
+    }
+    .detail-footer{
+      margin-top:.75rem;
+      display:flex;
+      flex-wrap:wrap;
+      gap:.4rem;
+      align-items:center;
+      font-size:.75rem;
+      color:var(--muted);
+    }
+    .dot-status{
+      display:inline-flex;
+      align-items:center;
+      gap:.25rem;
+      padding:.15rem .45rem;
+      border-radius:999px;
+      background:#f8f9fa;
+    }
+    .dot-status i{
+      font-size:.75rem;
+    }
+    .badge-soft{
+      border-radius:999px;
+      padding:.15rem .45rem;
+      background:#f8f9fa;
+      font-size:.7rem;
+      color:var(--muted);
+    }
+
+    /* Panel de retos 2026 */
+    .challenges-panel{
+      background:var(--card);
+      border-radius:1rem;
+      padding:1rem 1.1rem 1.2rem;
+      box-shadow:0 8px 20px rgba(15,23,42,.08);
+      border:1px solid rgba(15,23,42,.06);
+      margin-top:1.3rem;
+    }
+    .challenges-header{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:.6rem;
+      margin-bottom:.9rem;
+    }
+    .challenges-header h2{
+      font-size:1.05rem;
+      margin:0;
+      font-weight:600;
+      color:var(--primary);
+    }
+    .challenges-header small{
+      font-size:.78rem;
+      color:var(--muted);
+    }
+    .challenge-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:.8rem;
+    }
+    .challenge-card{
+      position:relative;
+      background:#ffffff;
+      border-radius:.9rem;
+      padding:.9rem .9rem .85rem;
+      border:1px solid rgba(15,23,42,.06);
+      box-shadow:0 4px 14px rgba(15,23,42,.06);
+      overflow:hidden;
+    }
+    .challenge-card::before{
+      content:"";
+      position:absolute;
+      inset:0 auto auto 0;
+      width:4px;
+      height:100%;
+      background:linear-gradient(180deg,var(--primary),var(--accent));
+    }
+    .challenge-icon{
+      width:32px;
+      height:32px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:var(--primary-soft);
+      color:var(--primary);
+      margin-bottom:.4rem;
+      font-size:1.1rem;
+    }
+    .challenge-title{
+      font-size:.9rem;
+      font-weight:600;
+      margin-bottom:.15rem;
+      color:var(--primary);
+    }
+    .challenge-text{
+      font-size:.78rem;
+      color:#343a40;
+      margin-bottom:.45rem;
+    }
+    .semester-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.4rem;
+    }
+    .semester-pill{
+      flex:1;
+      min-width:120px;
+      border-radius:.75rem;
+      padding:.3rem .45rem .4rem;
+      background:#f8f9fa;
+    }
+    .semester-pill-label{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      font-size:.7rem;
+      color:var(--muted);
+      margin-bottom:.15rem;
+    }
+    .semester-pill-label span.badge{
+      font-size:.65rem;
+      background:var(--accent-soft);
+      color:var(--primary);
+      border-radius:999px;
+      border:1px solid rgba(212,163,34,.4);
+      padding:.05rem .35rem;
+    }
+    .semester-bar{
+      height:6px;
+      border-radius:999px;
+      background:#e4e7f0;
+      overflow:hidden;
+    }
+    .semester-fill{
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--primary),var(--accent));
+      width:var(--value,0%);
+    }
+
+    /* Panel mapa mental Markmap */
+    .mindmap-panel{
+      background:var(--card);
+      border-radius:1rem;
+      padding:1rem 1.1rem 1.2rem;
+      box-shadow:0 8px 20px rgba(15,23,42,.08);
+      border:1px solid rgba(15,23,42,.06);
+      margin-top:1.3rem;
+      margin-bottom:.5rem;
+      position:relative;
+    }
+    .mindmap-header{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:center;
+      gap:.6rem;
+      margin-bottom:.8rem;
+    }
+    .mindmap-header h2{
+      font-size:1.05rem;
+      margin:0;
+      font-weight:600;
+      color:var(--primary);
+    }
+    .mindmap-header small{
+      font-size:.78rem;
+      color:var(--muted);
+      display:block;
+    }
+    .mindmap-container{
+      position:relative;
+      border-radius:.9rem;
+      background:#f8f9fa;
+      overflow:hidden;
+      border:1px solid rgba(15,23,42,.06);
+    }
+    #mindmap{
+      display:block;
+      width:100%;
+      height:460px; /* adaptado al dashboard, no a pantalla completa */
+    }
+    .markmap-dark{
+      background:#27272a;
+      color:white;
+    }
+  </style>
+</head>
+<body>
+<div class="dashboard-shell">
+
+  <!-- Encabezado -->
+  <header class="dash-header" id="dashboard-top">
+    <div class="d-flex justify-content-between flex-wrap align-items-center mb-2">
+      <div class="d-flex align-items-center gap-3">
+        <!-- Escudo Uniagustiniana -->
+        <img src="https://www.uniagustiniana.edu.co/wp-content/uploads/2024/11/Escudo-uniagustiniana-768x768.png"
+             alt="Escudo Universitaria Agustiniana"
+             class="uni-logo">
+        <div>
+          <h1>Informe de Gestión 2025 · Facultad de Ingenierías</h1>
+          <small>Universitaria Agustiniana – Dashboard consolidado por programa y nivel de formación</small>
+        </div>
+      </div>
+      <div class="text-end mt-3 mt-sm-0">
+        <span class="badge bg-light text-dark">
+          <i class="bi bi-calendar3 me-1"></i>Periodo: 2025
+        </span>
+      </div>
+    </div>
+    <div>
+      <span class="chip"><i class="bi bi-mortarboard"></i> Pregrado</span>
+      <span class="chip"><i class="bi bi-award"></i> Posgrados</span>
+      <span class="chip"><i class="bi bi-activity"></i> KPIs de gestión</span>
+      <span class="chip"><i class="bi bi-bar-chart-line"></i> Resumen ejecutivo</span>
+    </div>
+  </header>
+
+  <!-- Contenido principal -->
+  <main class="main-content">
+
+    <!-- PANEL RESUMEN GENERAL -->
+    <section class="summary-panel">
+      <div class="summary-header">
+        <div>
+          <h2><i class="bi bi-graph-up-arrow me-1" style="color:var(--primary);"></i>Informe general de gestión 2025</h2>
+          <small>
+            Gestión integral orientada a excelencia académica, pertinencia social e innovación formativa,
+            alineada con los motores instruccionales y el PDI 2025–2031.
+          </small>
+        </div>
+        <div class="text-end">
+          <span class="summary-badge">
+            <i class="bi bi-diagram-3"></i>
+            Docencia · Investigación · Proyección social · Internacionalización · Educación continua
+          </span>
+        </div>
+      </div>
+
+      <!-- KPIs globales -->
+      <div class="summary-kpis">
+        <div class="summary-kpi-card">
+          <div class="summary-kpi-label">Estudiantes atendidos</div>
+          <div class="summary-kpi-value">1.244</div>
+          <div class="summary-kpi-note">
+            1.021 de pregrado y 223 de posgrado; talento humano altamente capacitado, pertinente y socialmente responsable.
+          </div>
+        </div>
+        <div class="summary-kpi-card">
+          <div class="summary-kpi-label">Planta docente</div>
+          <div class="summary-kpi-value">58 profesores</div>
+          <div class="summary-kpi-note">
+            18 TC, 19 MT y 21 HC, garantizando operación académica, acompañamiento estudiantil y coherencia con estándares institucionales.
+          </div>
+        </div>
+        <div class="summary-kpi-card">
+          <div class="summary-kpi-label">Educación continua (Centro FACT)</div>
+          <div class="summary-kpi-value">$40.800.000</div>
+          <div class="summary-kpi-note">
+            Recertificación FACT 2025–2027 con diplomados que fortalecen la vinculación con el sector productivo.
+          </div>
+        </div>
+        <div class="summary-kpi-card">
+          <div class="summary-kpi-label">Motores institucionales fortalecidos</div>
+          <div class="summary-kpi-value">5 motores</div>
+          <div class="summary-kpi-note">
+            Docencia, investigación, proyección social, internacionalización y educación continua con evidencias cuantitativas y cualitativas.
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-actions">
+        <small>
+          Se consolidan alianzas académico-empresariales (Semana de la Ingeniería, PineApp, FESTO, DataWifi, Ruckus),
+          investigación aplicada, proyección social e internacionalización, e identificación de retos 2026
+          (laboratorios, matrícula, alianzas y movilidad).
+        </small>
+        <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#fullReport" aria-expanded="false" aria-controls="fullReport">
+          <i class="bi bi-file-earmark-text me-1"></i>Ver informe narrativo completo
+        </button>
+      </div>
+
+      <!-- Texto completo colapsable -->
+      <div class="collapse summary-collapse mt-2" id="fullReport">
+        <div class="summary-text">
+          <p>
+            Durante el año 2025, la Facultad de Ingenierías consolidó una gestión integral orientada a la excelencia académica,
+            la pertinencia social y la innovación formativa, alineando sus resultados con los motores instruccionales y los
+            objetivos estratégicos del PDI 2025–2031. El periodo evaluado demuestra un fortalecimiento significativo de la
+            docencia, la investigación, la proyección social, la internacionalización y la educación continua, soportado en
+            datos cuantitativos y cualitativos que reflejan madurez institucional y capacidad de impacto.
+          </p>
+          <p>
+            La facultad atendió un total de 1.244 estudiantes, distribuidos en 1.021 de pregrado y 223 de posgrado, reafirmando
+            su compromiso con la formación de talento humano altamente capacitado, pertinente y socialmente responsable.
+            Este volumen estudiantil exige la consolidación de los motores instruccionales asociados a la calidad pedagógica,
+            la innovación curricular y el aseguramiento del aprendizaje. En este propósito, la planta docente, conformada por
+            58 profesores —18 de tiempo completo, 19 de medio tiempo y 21 de hora cátedra—, permitió garantizar la operación
+            académica, el acompañamiento estudiantil y la implementación de estrategias de formación coherentes con los
+            estándares institucionales.
+          </p>
+          <p>
+            En el ámbito de la educación continua, se destaca la Recertificación del Centro FACT para el periodo 2025–2027,
+            un hito estratégico para la consolidación de procesos formativos especializados. En este marco, se desarrolló
+            un diplomado con 13 estudiantes, generando $22.100.000, y para diciembre se proyecta una cohorte adicional con
+            11 estudiantes, correspondiente a $18.700.000, alcanzando un total acumulado de $40.800.000 en actividades de
+            actualización profesional. Este logro fortalece el motor institucional de educación continua como mecanismo de
+            vinculación con el sector productivo.
+          </p>
+          <p>
+            En investigación, los programas de Mecatrónica, Telecomunicaciones, Industrial y Desarrollo de Software sostuvieron
+            una dinámica productiva mediante artículos, prototipos y desarrollos tecnológicos aplicados, lo cual fortalece el
+            motor institucional de generación de conocimiento y contribuye a la solución de problemáticas reales del entorno.
+          </p>
+          <p>
+            La Semana de la Ingeniería se consolidó como un escenario de alto impacto académico y empresarial gracias a la
+            participación estratégica del aliado PineApp, cuya contribución fue determinante en el fortalecimiento de competencias,
+            el patrocinio de conferencistas y la articulación con actores del sector tecnológico. De igual manera, el evento
+            contó con el respaldo de FESTO, DataWifi, y Ruckus, empresas que aportaron conocimientos especializados, demostraciones
+            tecnológicas y oportunidades de relacionamiento, potenciando el aprendizaje práctico y enriqueciendo la experiencia
+            formativa de estudiantes y docentes. Esta articulación evidencia la capacidad de la facultad para consolidar redes
+            de cooperación académico-empresarial y se alinea con el motor institucional de relacionamiento intersectorial
+            e innovación.
+          </p>
+          <p>
+            La proyección social avanzó a través de iniciativas como Iniciativa Darwin, La Comadre, acciones ambientales
+            y programas comunitarios, alineándose con la responsabilidad social universitaria y los propósitos misionales
+            de impacto territorial. Por su parte, la internacionalización se fortaleció mediante aulas espejo, ponencias,
+            movilidad académica, certificaciones internacionales y alianzas con empresas tecnológicas globales, consolidando
+            la visibilidad y competitividad de los programas.
+          </p>
+          <p>
+            Los posgrados demostraron una dinámica sobresaliente gracias a webinares internacionales, certificaciones estudiantiles,
+            participación en congresos y el fortalecimiento de competencias en inglés, proyectando la facultad como referente
+            en formación avanzada, investigación aplicada y articulación con expertos nacionales e internacionales.
+          </p>
+          <p>
+            Si bien los logros del periodo son significativos, se identifican retos asociados a la ampliación de laboratorios,
+            el fortalecimiento de la matrícula, la expansión de alianzas estratégicas y la necesidad de recursos para salidas
+            de campo y movilidad internacional. Estas áreas representan oportunidades de mejora para la planificación 2026,
+            en coherencia con la visión institucional.
+          </p>
+          <p>
+            En conjunto, la Facultad de Ingenierías demostró una gestión estratégica, coherente y orientada a resultados,
+            consolidando avances en los motores instruccionales, fortaleciendo la pertinencia académica y reafirmando su
+            compromiso con la calidad educativa, la innovación y la transformación social.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTENIDO DETALLADO POR PROGRAMA -->
+    <div class="main-content-inner">
+
+      <!-- Panel de programas -->
+      <section class="programs-panel">
+        <div class="programs-header">
+          <div>
+            <h2>Programas y Especializaciones</h2>
+            <small>Haz clic en una tarjeta para ver el resumen ejecutivo y los KPIs detallados.</small>
+          </div>
+        </div>
+
+        <div class="program-grid">
+          <!-- Cada tarjeta tiene data-program para enlazar con JS -->
+          <article class="program-card active" data-program="industrial">
+            <div class="program-title">
+              <span><i class="bi bi-gear-wide-connected me-1"></i> Ingeniería Industrial</span>
+              <span class="program-chip">Pregrado</span>
+            </div>
+            <div class="program-subtitle">Enfoque en eficiencia operativa, calidad y mejora de procesos.</div>
+            <div class="kpi-row">
+              <div class="kpi-pill">
+                <span class="label">Ejecución plan</span>
+                <span class="value">
+                  <span class="badge-dot success"></span> 92%
+                </span>
+              </div>
+              <div class="kpi-pill">
+                <span class="label">Actividades 2025</span>
+                <span class="value">18</span>
+              </div>
+              <div class="kpi-pill">
+                <span class="label">Impacto estudiantil</span>
+                <span class="value">+240</span>
+              </div>
+            </div>
+            <!-- mini gráfico -->
+            <div class="mini-kpi-chart">
+              <div class="mini-kpi-label">
+                <span>Ejecución del plan</span>
+                <span>92%</span>
+              </div>
+              <div class="mini-kpi-bar">
+                <div class="mini-kpi-fill" style="--value:92%;"></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="program-card" data-program="mecatronica">
+            <div class="program-title">
+              <span><i class="bi bi-cpu me-1"></i> Ingeniería Mecatrónica</span>
+              <span class="program-chip">Pregrado</span>
+            </div>
+            <div class="program-subtitle">Automatización, robótica y manufactura inteligente.</div>
+            <div class="kpi-row">
+              <div class="kpi-pill">
+                <span class="label">Ejecución plan</span>
+                <span class="value"><span class="badge-dot success"></span> 95%</span>
+              </div>
+              <div class="kpi-pill">
+                <span class="label">Proyectos activos</span>
+                <span class="value">12</span>
+              </div>
+              <div class="kpi-pill">
+                <span class="label">Eventos y talleres</span>
+                <span class="value">7</span>
+              </div>
+            </div>
+            <div class="mini-kpi-chart">
+              <div class="mini-kpi-label">
+                <span>Ejecución del plan</span>
+                <span>95%</span>
+              </div>
+              <div class="mini-kpi-bar">
+                <div class="mini-kpi-fill" style="--value:95%;"></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="program-card" data-program="telecom">
+            <div class="program-title">
+              <span><i class="bi bi-broadcast-pin me-1"></i> Ingeniería en Telecomunicaciones</span>
+              <span class="program-chip">Pregrado</span>
+            </div>
+            <div class="program-subtitle">Conectividad, redes y proyectos con aliados tecnológicos.</div>
+            <div class="kpi-row">
+              <div class="kpi-pill">
+                <span class="label">Ejecución plan</span>
+                <span class="value"><span class="badge-dot success"></span> 93%</span>
+              </div>
+              <div class="kpi-pill">
+                <span class="label">Aliados estratégicos</span>
+                <span class="value">4</span>
+              </div>
+              <div class="kpi-pill">
+                <span class="label">Participantes</span>
+                <span class="value">+280</span>
+              </div>
+            </div>
+            <div class="mini-kpi-chart">
+              <div class="mini-kpi-label">
+                <span>Ejecución del plan</span>
+                <span>93%</span>
+              </div>
+              <div class="mini-kpi-bar">
+                <div class="mini-kpi-fill" style="--value:93%;"></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="program-card" data-program="sistemas">
+            <div class="program-title">
+              <span><i class="bi bi-code-slash me-1"></i> Ingeniería de Sistemas y Computación</span>
+              <span class="program-chip">Pregrado</span>
+            </div>
+            <div class="program-subtitle">Desarrollo de software, IA y soluciones digitales.</div>
+            <div class="kpi-row">
+              <div class="kpi-pill">
+                <span class="label">Ejecución plan</span>
+                <span class="value"><span class="badge-dot success"></span> 90%</span>
+              </div>
+              <div class="kpi-pill">
+                <span class="label">Proyectos de aula</span>
+                <span class="value">15</span>
+              </div>
+              <div class="kpi-pill">
+                <span class="label">Movilidad / ponencias</span>
+                <span class="value">3</span>
+              </div>
+            </div>
+            <div class="mini-kpi-chart">
+              <div class="mini-kpi-label">
+                <span>Ejecución del plan</span>
+                <span>90%</span>
+              </div>
+              <div class="mini-kpi-bar">
+                <div class="mini-kpi-fill" style="--value:90%;"></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="program-card" data-program="tecsoftware">
+            <div class="program-title">
+              <span><i class="bi bi-laptop me-1"></i> Tec. en Desarrollo de Software</span>
+              <span class="program-chip">Pregrado</span>
+            </div>
+            <div class="program-subtitle">Formación técnica con énfasis en programación.</div>
+            <div class="kpi-row">
+              <div class="kpi-pill">
+                <span class="label">Ejecución plan</span>
+                <span class="value"><span class="badge-dot success"></span> 91%</span>
+              </div>
+              <div class="kpi-pill">
+                <span class="label">Cursos clave</span>
+                <span class="value">10</span>
+              </div>
+              <div class="kpi-pill">
+                <span class="label">Estudiantes activos</span>
+                <span class="value">+150</span>
+              </div>
+            </div>
+            <div class="mini-kpi-chart">
+              <div class="mini-kpi-label">
+                <span>Ejecución del plan</span>
+                <span>91%</span>
+              </div>
+              <div class="mini-kpi-bar">
+                <div class="mini-kpi-fill" style="--value:91%;"></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="program-card" data-program="esp_calidad">
+            <div class="program-title">
+              <span><i class="bi bi-clipboard2-check me-1"></i> Esp. Gerencia Estratégica de la Calidad</span>
+              <span class="program-chip">Posgrado</span>
+            </div>
+            <div class="program-subtitle">Gestión de la calidad, normas y auditoría.</div>
+            <div class="kpi-row">
+              <div class="kpi-pill">
+                <span class="label">Ejecución plan</span>
+                <span class="value"><span class="badge-dot success"></span> 97%</span>
+              </div>
+              <div class="kpi-pill">
+                <span class="label">Webinares / eventos</span>
+                <span class="value">4</span>
+              </div>
+              <div class="kpi-pill">
+                <span class="label">Certificaciones</span>
+                <span class="value">+30</span>
+              </div>
+            </div>
+            <div class="mini-kpi-chart">
+              <div class="mini-kpi-label">
+                <span>Ejecución del plan</span>
+                <span>97%</span>
+              </div>
+              <div class="mini-kpi-bar">
+                <div class="mini-kpi-fill" style="--value:97%;"></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="program-card" data-program="esp_ambiental">
+            <div class="program-title">
+              <span><i class="bi bi-globe-americas me-1"></i> Esp. Gestión Ambiental para el Des. Sostenible</span>
+              <span class="program-chip">Posgrado</span>
+            </div>
+            <div class="program-subtitle">Sostenibilidad, salidas de campo y gestión ambiental.</div>
+            <div class="kpi-row">
+              <div class="kpi-pill">
+                <span class="label">Ejecución plan</span>
+                <span class="value"><span class="badge-dot success"></span> 96%</span>
+              </div>
+              <div class="kpi-pill">
+                <span class="label">Salidas de campo</span>
+                <span class="value">3</span>
+              </div>
+              <div class="kpi-pill">
+                <span class="label">Ponencias / congresos</span>
+                <span class="value">2</span>
+              </div>
+            </div>
+            <div class="mini-kpi-chart">
+              <div class="mini-kpi-label">
+                <span>Ejecución del plan</span>
+                <span>96%</span>
+              </div>
+              <div class="mini-kpi-bar">
+                <div class="mini-kpi-fill" style="--value:96%;"></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="program-card" data-program="esp_proyectos">
+            <div class="program-title">
+              <span><i class="bi bi-kanban me-1"></i> Esp. Gerencia de Proyectos</span>
+              <span class="program-chip">Posgrado</span>
+            </div>
+            <div class="program-subtitle">Portafolio de proyectos e implementación aplicada.</div>
+            <div class="kpi-row">
+              <div class="kpi-pill">
+                <span class="label">Ejecución plan</span>
+                <span class="value"><span class="badge-dot success"></span> 94%</span>
+              </div>
+              <div class="kpi-pill">
+                <span class="label">Proyectos gestionados</span>
+                <span class="value">9</span>
+              </div>
+              <div class="kpi-pill">
+                <span class="label">Módulos virtualizados</span>
+                <span class="value">4</span>
+              </div>
+            </div>
+            <div class="mini-kpi-chart">
+              <div class="mini-kpi-label">
+                <span>Ejecución del plan</span>
+                <span>94%</span>
+              </div>
+              <div class="mini-kpi-bar">
+                <div class="mini-kpi-fill" style="--value:94%;"></div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Panel de detalle / resumen ejecutivo -->
+      <aside class="detail-panel">
+        <header class="detail-header">
+          <div>
+            <h3 class="detail-title" id="detailTitle">Ingeniería Industrial</h3>
+            <div class="detail-tag">
+              <i class="bi bi-bar-chart-line"></i>
+              <span>Resumen ejecutivo 2025</span>
+            </div>
+            <div class="detail-meta">
+              <i class="bi bi-building me-1"></i> Facultad de Ingenierías · <span id="detailLevel">Pregrado</span>
+            </div>
+          </div>
+          <div class="text-end">
+            <span class="badge-soft"><i class="bi bi-activity me-1"></i>KPI global: <span id="detailGlobalKpi">92%</span></span><br>
+            <span class="badge-soft mt-1"><i class="bi bi-calendar3 me-1"></i>Año 2025</span>
+          </div>
+        </header>
+
+        <div class="detail-body">
+          <div class="detail-kpis mb-3">
+            <div class="detail-kpi-card">
+              <div class="detail-kpi-label">Ejecución del plan de acción</div>
+              <div class="detail-kpi-value" id="detailKpi1Value">92%</div>
+              <div class="detail-kpi-note" id="detailKpi1Note">Acciones previstas vs ejecutadas en 2025.</div>
+            </div>
+            <div class="detail-kpi-card">
+              <div class="detail-kpi-label" id="detailKpi2Label">Actividades académicas / eventos</div>
+              <div class="detail-kpi-value" id="detailKpi2Value">18</div>
+              <div class="detail-kpi-note" id="detailKpi2Note">Cursos, proyectos, salidas y talleres desarrollados.</div>
+            </div>
+            <div class="detail-kpi-card">
+              <div class="detail-kpi-label" id="detailKpi3Label">Estudiantes participantes</div>
+              <div class="detail-kpi-value" id="detailKpi3Value">+240</div>
+              <div class="detail-kpi-note" id="detailKpi3Note">Estudiantes impactados por las actividades del programa.</div>
+            </div>
+          </div>
+
+          <div class="detail-summary">
+            <div class="detail-summary-title">Síntesis narrativa</div>
+            <p class="detail-summary-text" id="detailSummary">
+              En 2025 el programa de Ingeniería Industrial mantuvo un alto nivel de cumplimiento del plan de acción, consolidando
+              actividades en el laboratorio 108 y espacios de aprendizaje experiencial orientados a productividad, mejora de procesos
+              y calidad. Se desarrollaron proyectos de aula con participación significativa de estudiantes y se fortaleció la relación
+              con el entorno productivo mediante visitas técnicas y actividades de extensión.
+            </p>
+          </div>
+        </div>
+
+        <footer class="detail-footer">
+          <span class="dot-status">
+            <i class="bi bi-circle-fill text-success"></i>
+            Cumplimiento esperado
+          </span>
+          <span class="badge-soft" id="detailTag1"><i class="bi bi-lightbulb me-1"></i>Innovación pedagógica</span>
+          <span class="badge-soft" id="detailTag2"><i class="bi bi-people me-1"></i>Vínculo con el entorno</span>
+        </footer>
+      </aside>
+
+    </div>
+
+    <!-- Panel de retos estratégicos 2026 -->
+    <section class="challenges-panel">
+      <div class="challenges-header">
+        <div>
+          <h2><i class="bi bi-flag me-1"></i>Retos estratégicos 2026 · Facultad de Ingenierías</h2>
+          <small>Retos proyectados para el primer y segundo semestre de 2026, orientados al crecimiento académico y formativo.</small>
+        </div>
+        <span class="badge-soft"><i class="bi bi-calendar-range me-1"></i>Planificación 2026-1 · 2026-2</span>
+      </div>
+
+      <div class="challenge-grid">
+        <!-- Reto 1: Internacionalización + virtual -->
+        <article class="challenge-card">
+          <div class="challenge-icon">
+            <i class="bi bi-globe2"></i>
+          </div>
+          <div class="challenge-title">Internacionalización del currículo y consolidación de programas virtuales</div>
+          <p class="challenge-text">
+            Fortalecer la dimensión internacional de los programas de ingeniería mediante aulas espejo, movilidad académica
+            virtual e integración de contenidos globales en el currículo, articulando esta apuesta con los programas virtuales
+            de la Facultad para ampliar cobertura, flexibilidad y competitividad internacional.
+          </p>
+          <div class="semester-row">
+            <div class="semester-pill">
+              <div class="semester-pill-label">
+                <span>2026-1 · Diseño y pilotaje</span>
+                <span class="badge">Inicio</span>
+              </div>
+              <div class="semester-bar">
+                <div class="semester-fill" style="--value:45%;"></div>
+              </div>
+            </div>
+            <div class="semester-pill">
+              <div class="semester-pill-label">
+                <span>2026-2 · Implementación y expansión</span>
+                <span class="badge">Escala</span>
+              </div>
+              <div class="semester-bar">
+                <div class="semester-fill" style="--value:75%;"></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Reto 2: Posgrados + articulación especialización–maestría -->
+        <article class="challenge-card">
+          <div class="challenge-icon">
+            <i class="bi bi-mortarboard"></i>
+          </div>
+          <div class="challenge-title">Fortalecimiento de posgrados y ruta formativa hasta maestría</div>
+          <p class="challenge-text">
+            Fortalecer los programas de posgrado e impulsar alianzas estratégicas que permitan la articulación entre
+            especializaciones y maestrías, construyendo una ruta formativa continua para egresados y profesionales
+            del sector productivo, alineada con las necesidades del entorno y los motores institucionales.
+          </p>
+          <div class="semester-row">
+            <div class="semester-pill">
+              <div class="semester-pill-label">
+                <span>2026-1 · Diseño de la ruta y convenios</span>
+                <span class="badge">Alianzas</span>
+              </div>
+              <div class="semester-bar">
+                <div class="semester-fill" style="--value:40%;"></div>
+              </div>
+            </div>
+            <div class="semester-pill">
+              <div class="semester-pill-label">
+                <span>2026-2 · Lanzamiento y primera cohorte</span>
+                <span class="badge">Implementación</span>
+              </div>
+              <div class="semester-bar">
+                <div class="semester-fill" style="--value:70%;"></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Reto 3: Laboratorios -->
+        <article class="challenge-card">
+          <div class="challenge-icon">
+            <i class="bi bi-building-gear"></i>
+          </div>
+          <div class="challenge-title">Actualización y ampliación de laboratorios y ambientes de aprendizaje</div>
+          <p class="challenge-text">
+            Actualizar y ampliar los laboratorios y ambientes de aprendizaje en todas las áreas de ingeniería, priorizando
+            infraestructura para automatización, telecomunicaciones, desarrollo de software, sostenibilidad y analítica de datos,
+            en coherencia con las tendencias tecnológicas y los retos identificados en el informe de gestión 2025.
+          </p>
+          <div class="semester-row">
+            <div class="semester-pill">
+              <div class="semester-pill-label">
+                <span>2026-1 · Plan maestro y fase 1</span>
+                <span class="badge">Infraestructura</span>
+              </div>
+              <div class="semester-bar">
+                <div class="semester-fill" style="--value:50%;"></div>
+              </div>
+            </div>
+            <div class="semester-pill">
+              <div class="semester-pill-label">
+                <span>2026-2 · Implementación y evaluación de uso</span>
+                <span class="badge">Impacto</span>
+              </div>
+              <div class="semester-bar">
+                <div class="semester-fill" style="--value:80%;"></div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Panel Mapa Mental Markmap -->
+    <section class="mindmap-panel">
+      <div class="mindmap-header">
+        <div>
+          <h2><i class="bi bi-diagram-3 me-1"></i>Mapa mental · Funciones Sustantivas</h2>
+          <small>
+            Visualización sintética de investigación, proyección social, internacionalización y semilleros
+            por programas de la Facultad de Ingenierías.
+          </small>
+        </div>
+        <button class="btn btn-sm btn-outline-primary" type="button"
+                onclick="document.getElementById('dashboard-top').scrollIntoView({behavior:'smooth'});">
+          <i class="bi bi-arrow-up-circle me-1"></i>Ir al inicio del dashboard
+        </button>
+      </div>
+      <div class="mindmap-container">
+        <svg id="mindmap"></svg>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Markmap scripts -->
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.12/dist/browser/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-toolbar@0.18.12/dist/index.js"></script>
+
+<script>
+  const programData = {
+    industrial: {
+      title: "Ingeniería Industrial",
+      level: "Pregrado",
+      globalKpi: "92%",
+      kpi1Value: "92%",
+      kpi1Note: "Alto nivel de ejecución del plan de acción previsto para 2025.",
+      kpi2Label: "Actividades académicas y de extensión",
+      kpi2Value: "18",
+      kpi2Note: "Clases, proyectos, laboratorios, visitas técnicas y actividades de extensión.",
+      kpi3Label: "Estudiantes impactados",
+      kpi3Value: "+240",
+      kpi3Note: "Participación acumulada en actividades formativas y de proyección.",
+      summary: "El programa de Ingeniería Industrial ejecutó de manera satisfactoria su plan de acción 2025, consolidando el laboratorio 108 como espacio lúdico y aplicado para el aprendizaje de herramientas de mejora de procesos, productividad y calidad. Se desarrollaron múltiples proyectos de aula, talleres y actividades de extensión con participación significativa de estudiantes. Se identifican oportunidades en el fortalecimiento de la visibilidad del programa y en la articulación con otras facultades para proyectos interdisciplinarios.",
+      tag1: "Mejora de procesos",
+      tag2: "Laboratorios activos"
+    },
+    mecatronica: {
+      title: "Ingeniería Mecatrónica",
+      level: "Pregrado",
+      globalKpi: "95%",
+      kpi1Value: "95%",
+      kpi1Note: "Cumplimiento sobresaliente del plan académico-administrativo.",
+      kpi2Label: "Proyectos de automatización / robótica",
+      kpi2Value: "12",
+      kpi2Note: "Proyectos de aula y trabajo en laboratorio.",
+      kpi3Label: "Eventos y talleres especializados",
+      kpi3Value: "7",
+      kpi3Note: "Sesiones de formación complementaria con docentes y aliados.",
+      summary: "Ingeniería Mecatrónica cerró el año con un cumplimiento muy alto del plan de acción. Los estudiantes participaron en proyectos de innovación tecnológica, robótica y manufactura aditiva, aprovechando las capacidades de los laboratorios. Se evidenció trabajo en equipo entre docentes y estudiantes, así como líneas de acción claras para robustecer el laboratorio 109 con nuevos equipos de escaneo 3D y prototipado.",
+      tag1: "Manufactura aditiva",
+      tag2: "Proyectos de innovación"
+    },
+    telecom: {
+      title: "Ingeniería en Telecomunicaciones",
+      level: "Pregrado",
+      globalKpi: "93%",
+      kpi1Value: "93%",
+      kpi1Note: "Ejecución consistente del plan de acción con énfasis en aliados externos.",
+      kpi2Label: "Aliados estratégicos",
+      kpi2Value: "4",
+      kpi2Note: "Huawei, CISCO y otros aliados tecnológicos.",
+      kpi3Label: "Participantes en proyectos",
+      kpi3Value: "+280",
+      kpi3Note: "Estudiantes involucrados en actividades e iniciativas.",
+      summary: "El programa de Ingeniería en Telecomunicaciones destacó por su articulación con aliados tecnológicos y proyectos aplicados, como el humedal 360° y la implementación de redes LoRaWAN para telemetría. Aunque se presentan retos de matrícula, las actividades académicas y de extensión muestran un impacto importante en competencias digitales, conectividad y trabajo con comunidades.",
+      tag1: "Alianzas tecnológicas",
+      tag2: "Proyectos de conectividad"
+    },
+    sistemas: {
+      title: "Ingeniería de Sistemas y Computación",
+      level: "Pregrado",
+      globalKpi: "90%",
+      kpi1Value: "90%",
+      kpi1Note: "Plan de acción ejecutado con algunos ajustes por capacidad de salas.",
+      kpi2Label: "Proyectos de aula",
+      kpi2Value: "15",
+      kpi2Note: "Desarrollo de software, IA y soluciones digitales.",
+      kpi3Label: "Movilidad y ponencias",
+      kpi3Value: "3",
+      kpi3Note: "Experiencias de práctica en el exterior y participación en eventos.",
+      summary: "Ingeniería de Sistemas y Computación logró desarrollar proyectos de software e iniciativas en inteligencia artificial, a pesar de restricciones en salas de cómputo y tiempos de virtualidad. Se destacan experiencias de movilidad internacional y ponencias en escenarios académicos, que fortalecen el perfil del programa y de sus estudiantes. Se identifican necesidades de ampliación de infraestructura y de consolidación de contenidos virtuales.",
+      tag1: "Transformación digital",
+      tag2: "IA y desarrollo de software"
+    },
+    tecsoftware: {
+      title: "Tec. en Desarrollo de Software",
+      level: "Pregrado",
+      globalKpi: "91%",
+      kpi1Value: "91%",
+      kpi1Note: "Ejecución sólida del plan concentrado en competencias técnicas.",
+      kpi2Label: "Cursos clave",
+      kpi2Value: "10",
+      kpi2Note: "Asignaturas núcleo de programación y desarrollo.",
+      kpi3Label: "Estudiantes activos",
+      kpi3Value: "+150",
+      kpi3Note: "Estudiantes que cursaron actividades del programa.",
+      summary: "La Tecnología en Desarrollo de Software avanzó en la consolidación de una ruta formativa orientada a la programación y el desarrollo de aplicaciones. Se han fortalecido los laboratorios de cómputo y se proyectan alianzas para prácticas empresariales. El reto principal está en seguir haciendo visible el valor de la titulación técnica y su articulación con ciclos superiores.",
+      tag1: "Ruta de programación",
+      tag2: "Articulación con el sector"
+    },
+    esp_calidad: {
+      title: "Esp. Gerencia Estratégica de la Calidad",
+      level: "Posgrado",
+      globalKpi: "97%",
+      kpi1Value: "97%",
+      kpi1Note: "Alta ejecución de módulos y actividades de posgrado.",
+      kpi2Label: "Webinares y eventos internacionales",
+      kpi2Value: "4",
+      kpi2Note: "Encuentros especializados en gestión de la calidad.",
+      kpi3Label: "Certificaciones obtenidas",
+      kpi3Value: "+30",
+      kpi3Note: "Certificados en temas de calidad, auditoría y datos.",
+      summary: "La especialización en Gerencia Estratégica de la Calidad consolidó un portafolio robusto de actividades, con webinares internacionales y certificaciones en temas clave como gases de efecto invernadero, analítica de datos y auditorías de calidad. El programa mantiene una comunidad académica activa y alineada con las exigencias actuales de los sistemas de gestión.",
+      tag1: "Certificaciones",
+      tag2: "Calidad y auditoría"
+    },
+    esp_ambiental: {
+      title: "Esp. Gestión Ambiental para el Desarrollo Sostenible",
+      level: "Posgrado",
+      globalKpi: "96%",
+      kpi1Value: "96%",
+      kpi1Note: "Plan ejecutado con fuerte componente de campo.",
+      kpi2Label: "Salidas de campo",
+      kpi2Value: "3",
+      kpi2Note: "Visitas a humedales y páramos.",
+      kpi3Label: "Ponencias y congresos",
+      kpi3Value: "2",
+      kpi3Note: "Participación en espacios académicos especializados.",
+      summary: "La especialización en Gestión Ambiental para el Desarrollo Sostenible profundizó en experiencias de campo y análisis de problemáticas ambientales reales. Las salidas al humedal y al páramo permiten conectar teoría y práctica, y las participaciones en congresos contribuyen a la visibilidad académica del programa. El reto principal es mantener los recursos para estas actividades y ampliar la vinculación con proyectos territoriales.",
+      tag1: "Sostenibilidad",
+      tag2: "Campo y territorio"
+    },
+    esp_proyectos: {
+      title: "Esp. Gerencia de Proyectos",
+      level: "Posgrado",
+      globalKpi: "94%",
+      kpi1Value: "94%",
+      kpi1Note: "Alta ejecución con énfasis en aplicación práctica.",
+      kpi2Label: "Proyectos gestionados",
+      kpi2Value: "9",
+      kpi2Note: "Casos y proyectos trabajados por los estudiantes.",
+      kpi3Label: "Módulos virtualizados",
+      kpi3Value: "4",
+      kpi3Note: "Componentes desarrollados en modalidad virtual.",
+      summary: "La especialización en Gerencia de Proyectos consolidó una dinámica de trabajo basada en casos reales, con un portafolio de proyectos gestionados por los estudiantes. La virtualización de módulos ha permitido mayor flexibilidad, aunque aún se requiere fortalecer los recursos didácticos digitales. Se visualiza la oportunidad de avanzar hacia una oficina o unidad de proyectos que articule iniciativas institucionales.",
+      tag1: "Portafolio de proyectos",
+      tag2: "Virtualización de módulos"
+    }
+  };
+
+  function updateDetail(programKey){
+    const data = programData[programKey];
+    if(!data) return;
+
+    document.getElementById("detailTitle").textContent = data.title;
+    document.getElementById("detailLevel").textContent = data.level;
+    document.getElementById("detailGlobalKpi").textContent = data.globalKpi;
+    document.getElementById("detailKpi1Value").textContent = data.kpi1Value;
+    document.getElementById("detailKpi1Note").textContent = data.kpi1Note;
+    document.getElementById("detailKpi2Label").textContent = data.kpi2Label;
+    document.getElementById("detailKpi2Value").textContent = data.kpi2Value;
+    document.getElementById("detailKpi2Note").textContent = data.kpi2Note;
+    document.getElementById("detailKpi3Label").textContent = data.kpi3Label;
+    document.getElementById("detailKpi3Value").textContent = data.kpi3Value;
+    document.getElementById("detailKpi3Note").textContent = data.kpi3Note;
+    document.getElementById("detailSummary").textContent = data.summary;
+    document.getElementById("detailTag1").innerHTML = '<i class="bi bi-lightbulb me-1"></i>' + data.tag1;
+    document.getElementById("detailTag2").innerHTML = '<i class="bi bi-people me-1"></i>' + data.tag2;
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    const cards = document.querySelectorAll(".program-card");
+
+    cards.forEach(card => {
+      card.addEventListener("click", () => {
+        const key = card.getAttribute("data-program");
+        cards.forEach(c => c.classList.remove("active"));
+        card.classList.add("active");
+        updateDetail(key);
+      });
+    });
+
+    updateDetail("industrial"); // carga inicial
+  });
+</script>
+
+<!-- Script toolbar Markmap -->
+<script>
+  (() => {
+    setTimeout(() => {
+      const { markmap: S, mm: Q } = window;
+      if (!S || !Q) return;
+      const toolbar = new S.Toolbar;
+      toolbar.attach(Q);
+      const el = toolbar.render();
+      el.setAttribute("style", "position:absolute;bottom:20px;right:20px");
+      document.body.append(el);
+    }, 500);
+  })();
+</script>
+
+<!-- Script de creación del mapa mental (contenido JSON) -->
+<script>
+  ((l,U,M,R)=>{
+    const N = l();
+    window.mm = N.Markmap.create("svg#mindmap", (U || N.deriveOptions)(R), M);
+    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      document.documentElement.classList.add("markmap-dark");
+    }
+  })(
+    () => window.markmap,
+    null,
+    {
+      "content":"Funciones Sustantivas",
+      "children":[
+        {
+          "content":"Investigaci\u00f3n",
+          "children":[
+            {
+              "content":"Ingenier\u00eda Mecatr\u00f3nica",
+              "children":[
+                {"content":"Art\u00edculos sometidos: 1","children":[],"payload":{"tag":"li","lines":"5,6"}},
+                {"content":"Prototipos: 1","children":[],"payload":{"tag":"li","lines":"6,8"}}
+              ],
+              "payload":{"tag":"h3","lines":"4,5"}
+            },
+            {
+              "content":"Ingenier\u00eda en Telecomunicaciones",
+              "children":[
+                {"content":"Prototipos: 1","children":[],"payload":{"tag":"li","lines":"9,11"}}
+              ],
+              "payload":{"tag":"h3","lines":"8,9"}
+            },
+            {
+              "content":"Ingenier\u00eda Industrial",
+              "children":[
+                {"content":"Art\u00edculos sometidos: 1","children":[],"payload":{"tag":"li","lines":"12,13"}},
+                {"content":"Art\u00edculos publicados: 1","children":[],"payload":{"tag":"li","lines":"13,15"}}
+              ],
+              "payload":{"tag":"h3","lines":"11,12"}
+            },
+            {
+              "content":"Tecnolog\u00eda en Desarrollo de Software",
+              "children":[
+                {"content":"Art\u00edculos sometidos: 1","children":[],"payload":{"tag":"li","lines":"16,17"}},
+                {"content":"Software: 2","children":[],"payload":{"tag":"li","lines":"17,19"}}
+              ],
+              "payload":{"tag":"h3","lines":"15,16"}
+            },
+            {
+              "content":"Posgrado",
+              "children":[
+                {"content":"Ponencia: Calidad ambiental","children":[],"payload":{"tag":"li","lines":"20,23"}}
+              ],
+              "payload":{"tag":"h3","lines":"19,20"}
+            }
+          ],
+          "payload":{"tag":"h2","lines":"2,3"}
+        },
+        {
+          "content":"Proyecci\u00f3n Social",
+          "children":[
+            {
+              "content":"Iniciativa Darwin",
+              "children":[
+                {
+                  "content":"Programas participantes",
+                  "children":[
+                    {"content":"Ingenier\u00eda Mecatr\u00f3nica","children":[],"payload":{"tag":"li","lines":"27,28"}},
+                    {"content":"Ingenier\u00eda en Telecomunicaciones","children":[],"payload":{"tag":"li","lines":"28,29"}},
+                    {"content":"Tecnolog\u00eda en Desarrollo de Software","children":[],"payload":{"tag":"li","lines":"29,30"}}
+                  ],
+                  "payload":{"tag":"h4","lines":"26,27"}
+                },
+                {
+                  "content":"Actividades",
+                  "children":[
+                    {"content":"Capacitaci\u00f3n a la comunidad","children":[],"payload":{"tag":"li","lines":"31,32"}},
+                    {"content":"Prototipo de teletria","children":[],"payload":{"tag":"li","lines":"32,33"}},
+                    {"content":"Software de visualizaci\u00f3n en tiempo real","children":[],"payload":{"tag":"li","lines":"33,34"}},
+                    {"content":"Recorrido 3D","children":[],"payload":{"tag":"li","lines":"34,36"}}
+                  ],
+                  "payload":{"tag":"h4","lines":"30,31"}
+                }
+              ],
+              "payload":{"tag":"h3","lines":"25,26"}
+            },
+            {
+              "content":"Ingenier\u00eda Industrial",
+              "children":[
+                {
+                  "content":"La Comadre",
+                  "children":[
+                    {"content":"Capacitaciones a los emprendimientos","children":[],"payload":{"tag":"li","lines":"38,39"}},
+                    {"content":"Visitas empresariales","children":[],"payload":{"tag":"li","lines":"39,40"}},
+                    {"content":"Creaci\u00f3n de p\u00f3dcast","children":[],"payload":{"tag":"li","lines":"40,42"}}
+                  ],
+                  "payload":{"tag":"h4","lines":"37,38"}
+                }
+              ],
+              "payload":{"tag":"h3","lines":"36,37"}
+            },
+            {
+              "content":"Posgrado",
+              "children":[
+                {
+                  "content":"Extracurriculares",
+                  "children":[
+                    {"content":"Recorridos por el humedal y p\u00e1ramo","children":[],"payload":{"tag":"li","lines":"44,45"}},
+                    {"content":"Recorridos institucionales por proyectos ambientales","children":[],"payload":{"tag":"li","lines":"45,46"}},
+                    {"content":"Certificaci\u00f3n Secretar\u00eda de Ambiente (estudiantes y docentes)","children":[],"payload":{"tag":"li","lines":"46,47"}},
+                    {"content":"Certificaci\u00f3n en auditor\u00eda de calidad de educaci\u00f3n continua","children":[],"payload":{"tag":"li","lines":"47,50"}}
+                  ],
+                  "payload":{"tag":"h4","lines":"43,44"}
+                }
+              ],
+              "payload":{"tag":"h3","lines":"42,43"}
+            }
+          ],
+          "payload":{"tag":"h2","lines":"23,24"}
+        },
+        {
+          "content":"Internacionalizaci\u00f3n",
+          "children":[
+            {
+              "content":"Ingenier\u00eda Mecatr\u00f3nica",
+              "children":[
+                {"content":"Ponencia: 1","children":[],"payload":{"tag":"li","lines":"53,54"}},
+                {"content":"Aulas espejos: 2","children":[],"payload":{"tag":"li","lines":"54,55"}},
+                {"content":"Movilidad: 1","children":[],"payload":{"tag":"li","lines":"55,57"}}
+              ],
+              "payload":{"tag":"h3","lines":"52,53"}
+            },
+            {
+              "content":"Ingenier\u00eda en Telecomunicaciones",
+              "children":[
+                {"content":"Movilidad externa virtual: 1","children":[],"payload":{"tag":"li","lines":"58,59"}},
+                {"content":"Webinar virtual: 3","children":[],"payload":{"tag":"li","lines":"59,60"}},
+                {"content":"Empresa internacional fixed network product manager para ZTE: 1","children":[],"payload":{"tag":"li","lines":"60,62"}}
+              ],
+              "payload":{"tag":"h3","lines":"57,58"}
+            },
+            {
+              "content":"Ingenier\u00eda Industrial",
+              "children":[
+                {"content":"Aulas espejos: 4","children":[],"payload":{"tag":"li","lines":"63,64"}},
+                {"content":"Movilidad entrante: 1","children":[],"payload":{"tag":"li","lines":"64,65"}},
+                {"content":"Movilidad saliente: 1","children":[],"payload":{"tag":"li","lines":"65,67"}}
+              ],
+              "payload":{"tag":"h3","lines":"62,63"}
+            },
+            {
+              "content":"Tecnolog\u00eda en Desarrollo de Software",
+              "children":[
+                {"content":"Certificaci\u00f3n internacional de ICPC","children":[],"payload":{"tag":"li","lines":"68,69"}},
+                {"content":"Movilidad saliente: 1","children":[],"payload":{"tag":"li","lines":"69,71"}}
+              ],
+              "payload":{"tag":"h3","lines":"67,68"}
+            },
+            {
+              "content":"Posgrado",
+              "children":[
+                {"content":"Webinares internacionales: 2","children":[],"payload":{"tag":"li","lines":"72,73"}},
+                {"content":"Curso en ingl\u00e9s de Cisco: 1","children":[],"payload":{"tag":"li","lines":"73,75"}}
+              ],
+              "payload":{"tag":"h3","lines":"71,72"}
+            },
+            {
+              "content":"Ingenier\u00eda de Sistemas",
+              "children":[
+                {"content":"Invitado presencial: 1","children":[],"payload":{"tag":"li","lines":"76,77"}},
+                {"content":"Movilidad saliente: 1","children":[],"payload":{"tag":"li","lines":"77,80"}}
+              ],
+              "payload":{"tag":"h3","lines":"75,76"}
+            }
+          ],
+          "payload":{"tag":"h2","lines":"50,51"}
+        },
+        {
+          "content":"Semilleros",
+          "children":[
+            {
+              "content":"Ingenier\u00eda Mecatr\u00f3nica",
+              "children":[
+                {"content":"Eventos internos: 1","children":[],"payload":{"tag":"li","lines":"83,84"}},
+                {"content":"Externos: 1","children":[],"payload":{"tag":"li","lines":"84,86"}}
+              ],
+              "payload":{"tag":"h3","lines":"82,83"}
+            },
+            {
+              "content":"Ingenier\u00eda Industrial",
+              "children":[
+                {"content":"Eventos internos: 2","children":[],"payload":{"tag":"li","lines":"87,88"}},
+                {"content":"Externos: 1","children":[],"payload":{"tag":"li","lines":"88,90"}}
+              ],
+              "payload":{"tag":"h3","lines":"86,87"}
+            },
+            {
+              "content":"Tecnolog\u00eda en Desarrollo de Software",
+              "children":[
+                {"content":"Eventos internos: 1","children":[],"payload":{"tag":"li","lines":"91,92"}},
+                {"content":"Externos: 3","children":[],"payload":{"tag":"li","lines":"92,93"}},
+                {"content":"Metad: 6","children":[],"payload":{"tag":"li","lines":"93,95"}}
+              ],
+              "payload":{"tag":"h3","lines":"90,91"}
+            },
+            {
+              "content":"Ingenier\u00eda de Sistemas",
+              "children":[
+                {"content":"Eventos internos: 1","children":[],"payload":{"tag":"li","lines":"96,97"}},
+                {"content":"Externos: 1","children":[],"payload":{"tag":"li","lines":"97,98"}}
+              ],
+              "payload":{"tag":"h3","lines":"95,96"}
+            }
+          ],
+          "payload":{"tag":"h2","lines":"80,81"}
+        }
+      ],
+      "payload":{"tag":"h1","lines":"0,1"}
+    },
+    null
+  );
+</script>
+
+</body>
+</html>
